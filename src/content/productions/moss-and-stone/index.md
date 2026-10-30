@@ -13,9 +13,9 @@ team:                     # other people on the team (leave out for solo work)
   - { name: Alex Doe, role: Sound design, url: https://example.com }
 links:
   - { label: itch.io page, url: https://itch.io }
-playable:
-  src: /builds/sample/index.html   # or an itch.io embed URL
-  aspect: 16 / 9
+# playable:               # an itch.io embed, shown with the cover behind the play button
+#   src: https://itch.io/embed-upload/<upload-id>
+#   aspect: 16 / 9
 theme:                    # inherited by every project in this production
   accent: '#4a7a3a'
   dark:

@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { blocks } from '../../components/blocks';
+import Playable from '../../components/blocks/Playable.astro';
 import { getProduction, getProjects, loadCustomCss, themeCss, type Project } from '../../lib/content';
 import { disciplineLabel, formatDate, slug, titleCase, url } from '../../lib/format';
 
@@ -13,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { project } = Astro.props as { project: Project };
-const { title, description, role, disciplines, tools, date, cover, links, draft } = project.data;
+const { title, description, role, disciplines, tools, date, cover, links, playable, draft } = project.data;
 const production = await getProduction(project);
 const otherRoles = production
   ? (await getProjects()).filter((p) => p.data.production?.id === production.id && p.id !== project.id)
@@ -88,7 +89,15 @@ const css = [
       }
     </header>
 
-    {cover && <Image class="cover" src={cover} alt="" widths={[800, 1200, 1600, 2400]} sizes="(max-width: 1200px) 100vw, 1160px" />}
+    {
+      playable ? (
+        <Playable src={playable.src} aspect={playable.aspect} title={title} cover={cover} />
+      ) : (
+        cover && (
+          <Image class="cover" src={cover} alt="" widths={[800, 1200, 1600, 2400]} sizes="(max-width: 1200px) 100vw, 1160px" />
+        )
+      )
+    }
 
     <div class="prose">
       <Content components={blocks} />

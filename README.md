@@ -37,6 +37,7 @@ thumbnail: ./thumb.png                # card image
 cover: ./cover.png                    # big image at the top of the page
 links:
   - { label: Source on GitHub, url: https://github.com/... }
+playable: { src: https://itch.io/embed-upload/<upload-id>, aspect: 960 / 600 }   # see "Playable builds"
 featured: true                        # show on the home page
 draft: true                           # hidden on the live site
 theme: { accent: '#c2357a' }          # see "Per-page styling"
@@ -61,7 +62,7 @@ team:
   - { name: Alex Doe, role: Sound design, url: https://... }
 links:
   - { label: Steam, url: https://... }
-playable: { src: https://itch.io/embed-upload/1234567, aspect: 16 / 9 }
+playable: { src: https://itch.io/embed-upload/<upload-id>, aspect: 960 / 600 }   # see "Playable builds"
 theme: { accent: '#4a7a3a' }          # inherited by its projects
 customCss: ./style.css                # also applied to its projects
 draft: false
@@ -81,11 +82,12 @@ These work in any `.mdx` entry without importing anything:
 <Video vimeo="123456789" />
 <Video src="/media/turntable.mp4" loop />   <!-- file in public/media/; loop = plays like a GIF -->
 
-<Playable src="https://itch.io/embed-upload/1234567" aspect="16 / 9" />
-<Playable src="/builds/my-game/index.html" />
+<Playable src="https://itch.io/embed-upload/<upload-id>" aspect="960 / 600" />
 ```
 
 `Gallery` also takes `ratio="1 / 1"` to crop every image to one shape, and `pixelated` for pixel art.
+
+For an entry's main build, use the `playable` field instead of a `<Playable>` block: it goes at the top of the page with the cover behind the play button. The block is for extra builds further down.
 
 To add a new kind of block (a 3D model viewer, a before/after slider...), create a component in `src/components/blocks/` and add it to `src/components/blocks/index.ts`.
 
@@ -97,13 +99,19 @@ To add a new kind of block (a 3D model viewer, a before/after slider...), create
 
 ## Playable builds
 
-Upload the game to itch.io and use its embed URL, or export a web build into `public/builds/<name>/` and use `/builds/<name>/index.html`. A playable only loads after the visitor presses play.
+Web builds are hosted on itch.io and embedded here. Productions and projects both take a `playable` field:
 
-GitHub Pages can't send custom server headers, which affects self-hosted builds:
+1. Upload the web build to itch.io as an HTML game.
+2. On itch.io, go to **Edit game → Distribute → Embed game** and copy the iframe code.
+3. Put the iframe's `src` in `playable.src`, and its `width / height` in `playable.aspect` (for `width="960" height="600"`, use `960 / 600`).
 
-- **Unity:** in Player Settings → Publishing Settings, set Compression Format to *Disabled*, or turn on *Decompression Fallback*.
-- **Godot 4:** in the Web export, turn **off** *Thread Support* (Godot 4.3 or later).
-- Git rejects files over 100 MB and Pages caps the whole site at about 1 GB. Put big builds on itch.io.
+```yaml
+playable:
+  src: https://itch.io/embed-upload/<upload-id>
+  aspect: 960 / 600       # defaults to 16 / 9
+```
+
+The game shows at the top of the page with the entry's `cover` behind the play button, and only loads after the visitor presses play.
 
 ## Per-page styling
 
@@ -121,7 +129,7 @@ A project inherits its production's theme and stylesheet, and its own values win
 
 ## Site settings
 
-Your name, tagline, footer links and discipline labels are in `src/site.config.ts`. The About page is `src/pages/about.md`.
+Your name, tagline, footer links and discipline labels are in `src/site.config.ts`. The About page is `src/pages/about.mdx`.
 
 ## Publishing to GitHub Pages
 
@@ -141,4 +149,3 @@ These sample entries are all drafts and only show with `npm run dev`. Delete the
 - `src/content/projects/moss-and-stone-gameplay.md`
 - `src/content/projects/slime-sprite/`
 - `public/media/samples/`
-- `public/builds/sample/`

@@ -28,6 +28,9 @@ const theme = colors.extend({ dark: colors.optional() }).optional();
 
 const link = z.object({ label: z.string(), url: z.string() });
 
+// An itch.io embed, shown at the top of the page with the entry's cover behind the play button.
+const playable = z.object({ src: z.string(), aspect: z.string().default('16 / 9') }).optional();
+
 const productions = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/productions', generateId }),
   schema: ({ image }) =>
@@ -43,7 +46,7 @@ const productions = defineCollection({
       thumbnail: image().optional(),
       team: z.array(z.object({ name: z.string(), role: z.string().optional(), url: z.string().optional() })).default([]),
       links: z.array(link).default([]),
-      playable: z.object({ src: z.string(), aspect: z.string().default('16 / 9') }).optional(),
+      playable,
       theme,
       customCss: z.string().optional(),
       draft: z.boolean().default(false),
@@ -64,6 +67,7 @@ const projects = defineCollection({
       thumbnail: image().optional(),
       cover: image().optional(),
       links: z.array(link).default([]),
+      playable,
       featured: z.boolean().default(false),
       theme,
       customCss: z.string().optional(),
