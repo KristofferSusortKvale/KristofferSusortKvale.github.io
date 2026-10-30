@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductionCard from '../components/ProductionCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getProductions, getProjects } from '../lib/content';
+import { url } from '../lib/format';
+import { site } from '../site.config';
+
+const projects = await getProjects();
+const productions = await getProductions();
+
+// Projects marked `featured: true`, or the latest ones if none are.
+const featured = projects.filter((project) => project.data.featured);
+const selected = (featured.length > 0 ? featured : projects).slice(0, 6);
+const roleCount = (id: string) => projects.filter((project) => project.data.production?.id === id).length;
+---
+
+<BaseLayout>
+  <div class="container">
+    <section class="hero">
+      <h1>{site.name}</h1>
+      <p>{site.tagline}</p>
+    </section>
+
+    {
+      projects.length === 0 && productions.length === 0 ? (
+        <p class="empty section">Work in progress. The first projects are on their way.</p>
+      ) : (
+        <>
+          {selected.length > 0 && (
+            <section class="section">
+              <div class="section-head">
+                <h2>Selected work</h2>
+                <a href={url('/work/')}>All work →</a>
+              </div>
+              <div class="grid">
+                {selected.map((project) => (
+                  <ProjectCard project={project} />
+                ))}
+              </div>
+            </section>
+          )}
+          {productions.length > 0 && (
+            <section class="section">
+              <div class="section-head">
+                <h2>Productions</h2>
+                <a href={url('/productions/')}>All productions →</a>
+              </div>
+              <div class="grid">
+                {productions.slice(0, 3).map((production) => (
+                  <ProductionCard production={production} roles={roleCount(production.id)} />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      )
+    }
+  </div>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import { Image } from 'astro:assets';
+import type { Production } from '../lib/content';
+import { titleCase, url } from '../lib/format';
+
+interface Props {
+  production: Production;
+  /** Number of projects (roles) linked to this production. */
+  roles: number;
+}
+
+const { production, roles } = Astro.props;
+const { title, type, year, status, thumbnail, cover, draft } = production.data;
+const image = thumbnail ?? cover;
+const facts = [titleCase(type), year, status && titleCase(status)].filter(Boolean).join(' · ');
+---
+
+<a class="card" href={url(`/productions/${production.id}/`)}>
+  <div class="card-media">
+    {
+      image ? (
+        <Image src={image} alt="" widths={[400, 800]} sizes="(max-width: 600px) 100vw, 380px" />
+      ) : (
+        <div class="placeholder">{titleCase(type)}</div>
+      )
+    }
+  </div>
+  <div>
+    <div class="card-title">
+      {title}
+      {draft && <span class="chip chip-draft">Draft</span>}
+    </div>
+    <div class="card-sub">{facts}</div>
+    {roles > 0 && <div class="card-tags">{roles === 1 ? '1 role' : `${roles} roles`}</div>}
+  </div>
+</a>

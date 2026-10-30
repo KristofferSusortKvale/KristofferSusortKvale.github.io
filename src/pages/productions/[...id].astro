@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { blocks } from '../../components/blocks';
+import Playable from '../../components/blocks/Playable.astro';
+import { getProductions, getProjects, loadCustomCss, themeCss, type Production } from '../../lib/content';
+import { titleCase } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const productions = await getProductions();
+  return productions.map((production) => ({ params: { id: production.id }, props: { production } }));
+}
+
+const { production } = Astro.props as { production: Production };
+const { title, description, type, status, year, engine, platforms, cover, team, links, playable, draft } =
+  production.data;
+const projects = (await getProjects()).filter((project) => project.data.production?.id === production.id);
+const myRoles = [...new Set(projects.map((project) => project.data.role).filter(Boolean))];
+const facts = [titleCase(type), year, status && titleCase(status)].filter(Boolean).join(' · ');
+const { Content } = await render(production);
+
+const css = [themeCss(production.data.theme), await loadCustomCss(production)].filter(
+  (styles) => styles !== undefined,
+);
+---
+
+<BaseLayout title={title} description={description} css={css}>
+  <article class="container">
+    <header class="entry-header">
+      <p class="eyebrow">
+        <span>{facts}</span>
+        {draft && <span class="chip chip-draft">Draft</span>}
+      </p>
+      <h1>{title}</h1>
+      {description && <p class="lede">{description}</p>}
+      <dl class="meta">
+        {
+          myRoles.length > 0 && (
+            <div>
+              <dt>My roles</dt>
+              <dd>{myRoles.join(', ')}</dd>
+            </div>
+          )
+        }
+        {
+          engine && (
+            <div>
+              <dt>Engine</dt>
+              <dd>{engine}</dd>
+            </div>
+          )
+        }
+        {
+          platforms.length > 0 && (
+            <div>
+              <dt>Platforms</dt>
+              <dd>{platforms.join(', ')}</dd>
+            </div>
+          )
+        }
+        {
+          team.length > 0 && (
+            <div>
+              <dt>Team</dt>
+              <dd>
+                <ul>
+                  {team.map((member) => (
+                    <li>
+                      {member.url ? <a href={member.url}>{member.name}</a> : member.name}
+                      {member.role && <span class="muted"> · {member.role}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+      {
+        links.length > 0 && (
+          <div class="button-row">
+            {links.map((link) => (
+              <a class="button" href={link.url}>
+                {link.label} ↗
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      playable ? (
+        <Playable src={playable.src} aspect={playable.aspect} title={title} cover={cover} />
+      ) : (
+        cover && (
+          <Image class="cover" src={cover} alt="" widths={[800, 1200, 1600, 2400]} sizes="(max-width: 1200px) 100vw, 1160px" />
+        )
+      )
+    }
+
+    <div class="prose">
+      <Content components={blocks} />
+    </div>
+
+    {
+      projects.length > 0 && (
+        <section class="related">
+          <div class="section-head">
+            <h2>My work on {title}</h2>
+          </div>
+          <div class="grid">
+            {projects.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>

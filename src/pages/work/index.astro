@@ -1,0 +1,123 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProductions, getProjects } from '../../lib/content';
+import { disciplineLabel, slug } from '../../lib/format';
+
+const projects = await getProjects();
+const productions = await getProductions();
+
+/** Unique filter options from raw names, sorted by label. */
+function options(names: string[], label: (name: string) => string) {
+  const byValue = new Map<string, string>();
+  for (const name of names) if (!byValue.has(slug(name))) byValue.set(slug(name), label(name));
+  return [...byValue]
+    .map(([value, label]) => ({ value, label }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+}
+
+const productionOptions = productions
+  .filter((production) => projects.some((project) => project.data.production?.id === production.id))
+  .map((production) => ({ value: production.id, label: production.data.title }));
+if (projects.some((project) => !project.data.production)) productionOptions.push({ value: 'none', label: 'Standalone' });
+
+// The `key` matches the card's data attribute, e.g. data-discipline. A group with one option filters nothing, so it's hidden.
+const groups = [
+  { key: 'discipline', label: 'Discipline', options: options(projects.flatMap((p) => p.data.disciplines), disciplineLabel) },
+  { key: 'tool', label: 'Tool', options: options(projects.flatMap((p) => p.data.tools), (name) => name) },
+  { key: 'production', label: 'Production', options: productionOptions },
+].filter((group) => group.options.length > 1);
+---
+
+<BaseLayout title="Work">
+  <div class="container">
+    <header class="page-head">
+      <h1>Work</h1>
+      <p>Everything in one place. Filter by discipline, tool or the production it was made for.</p>
+    </header>
+
+    {
+      projects.length === 0 ? (
+        <p class="empty">Nothing published yet.</p>
+      ) : (
+        <>
+          {groups.length > 0 && (
+            <div class="filters" data-filters hidden>
+              {groups.map((group) => (
+                <div class="filter-group" data-group={group.key} role="group" aria-label={group.label}>
+                  <span class="filter-label">{group.label}</span>
+                  <button class="chip" type="button" data-value="" aria-pressed="true">
+                    All
+                  </button>
+                  {group.options.map((option) => (
+                    <button class="chip" type="button" data-value={option.value} aria-pressed="false">
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+          <div class="grid" data-grid>
+            {projects.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </div>
+          <p class="empty" data-no-results hidden>
+            No projects match these filters.
+          </p>
+        </>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<script>
+  // Filters are kept in the URL (e.g. /work/?discipline=3d&tool=blender), so a filtered view can be linked to.
+  const filters = document.querySelector<HTMLElement>('[data-filters]');
+
+  if (filters) {
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-grid] > .card')];
+    const noResults = document.querySelector<HTMLElement>('[data-no-results]')!;
+    const groups = [...filters.querySelectorAll<HTMLElement>('[data-group]')];
+    const params = new URLSearchParams(location.search);
+    const active = new Map<string, string>();
+
+    for (const group of groups) {
+      const key = group.dataset.group!;
+      const value = params.get(key);
+      if (value && group.querySelector(`[data-value="${CSS.escape(value)}"]`)) active.set(key, value);
+    }
+
+    const render = () => {
+      for (const group of groups) {
+        const current = active.get(group.dataset.group!) ?? '';
+        for (const chip of group.querySelectorAll<HTMLElement>('[data-value]')) {
+          chip.setAttribute('aria-pressed', String(chip.dataset.value === current));
+        }
+      }
+      let shown = 0;
+      for (const card of cards) {
+        const match = [...active].every(([key, value]) => card.dataset[key]?.split(' ').includes(value));
+        card.hidden = !match;
+        if (match) shown++;
+      }
+      noResults.hidden = shown > 0;
+      const query = new URLSearchParams([...active]).toString();
+      history.replaceState(null, '', query ? `?${query}` : location.pathname);
+    };
+
+    filters.addEventListener('click', (event) => {
+      const chip = (event.target as HTMLElement).closest<HTMLElement>('[data-value]');
+      if (!chip) return;
+      const key = chip.closest<HTMLElement>('[data-group]')!.dataset.group!;
+      const value = chip.dataset.value!;
+      if (!value || active.get(key) === value) active.delete(key);
+      else active.set(key, value);
+      render();
+    });
+
+    filters.hidden = false;
+    render();
+  }
+</script>

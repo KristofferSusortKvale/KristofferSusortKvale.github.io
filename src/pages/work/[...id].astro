@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { blocks } from '../../components/blocks';
+import { getProduction, getProjects, loadCustomCss, themeCss, type Project } from '../../lib/content';
+import { disciplineLabel, formatDate, slug, titleCase, url } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { id: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props as { project: Project };
+const { title, description, role, disciplines, tools, date, cover, links, draft } = project.data;
+const production = await getProduction(project);
+const otherRoles = production
+  ? (await getProjects()).filter((p) => p.data.production?.id === production.id && p.id !== project.id)
+  : [];
+const { Content } = await render(project);
+
+// The project's own theme and stylesheet are layered over its production's.
+const css = [
+  themeCss(production?.data.theme, project.data.theme),
+  await loadCustomCss(production),
+  await loadCustomCss(project),
+].filter((styles) => styles !== undefined);
+---
+
+<BaseLayout title={title} description={description} css={css}>
+  <article class="container">
+    <header class="entry-header">
+      {
+        (production || draft) && (
+          <p class="eyebrow">
+            {production && (
+              <span>
+                Part of <a href={url(`/productions/${production.id}/`)}>{production.data.title}</a>
+                <span class="muted"> · {titleCase(production.data.type)}</span>
+              </span>
+            )}
+            {draft && <span class="chip chip-draft">Draft</span>}
+          </p>
+        )
+      }
+      <h1>{title}</h1>
+      {role && <p class="role">{role}</p>}
+      {description && <p class="lede">{description}</p>}
+      <dl class="meta">
+        <div>
+          <dt>Date</dt>
+          <dd>{formatDate(date)}</dd>
+        </div>
+        {
+          tools.length > 0 && (
+            <div>
+              <dt>Tools</dt>
+              <dd>{tools.join(', ')}</dd>
+            </div>
+          )
+        }
+        <div>
+          <dt>Disciplines</dt>
+          <dd>
+            <ul class="chips">
+              {disciplines.map((tag) => (
+                <li>
+                  <a class="chip" href={url(`/work/?discipline=${slug(tag)}`)}>
+                    {disciplineLabel(tag)}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      </dl>
+      {
+        links.length > 0 && (
+          <div class="button-row">
+            {links.map((link) => (
+              <a class="button" href={link.url}>
+                {link.label} ↗
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    {cover && <Image class="cover" src={cover} alt="" widths={[800, 1200, 1600, 2400]} sizes="(max-width: 1200px) 100vw, 1160px" />}
+
+    <div class="prose">
+      <Content components={blocks} />
+    </div>
+
+    {
+      production && otherRoles.length > 0 && (
+        <section class="related">
+          <div class="section-head">
+            <h2>Other roles on {production.data.title}</h2>
+            <a href={url(`/productions/${production.id}/`)}>About the {production.data.type} →</a>
+          </div>
+          <div class="grid">
+            {otherRoles.map((other) => (
+              <ProjectCard project={other} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>

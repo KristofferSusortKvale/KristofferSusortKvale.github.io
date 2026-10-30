@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import { getProduction, type Project } from '../lib/content';
+import { disciplineLabel, slug, url } from '../lib/format';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { title, role, thumbnail, cover, disciplines, tools, draft } = project.data;
+const production = await getProduction(project);
+const image = thumbnail ?? cover;
+const subtitle = [production?.data.title, role].filter(Boolean).join(' · ');
+---
+
+<a
+  class="card"
+  href={url(`/work/${project.id}/`)}
+  data-discipline={disciplines.map(slug).join(' ')}
+  data-tool={tools.map(slug).join(' ')}
+  data-production={production?.id ?? 'none'}
+>
+  <div class="card-media">
+    {
+      image ? (
+        <Image src={image} alt="" widths={[400, 800]} sizes="(max-width: 600px) 100vw, 380px" />
+      ) : (
+        <div class="placeholder">{disciplineLabel(disciplines[0])}</div>
+      )
+    }
+  </div>
+  <div>
+    <div class="card-title">
+      {title}
+      {draft && <span class="chip chip-draft">Draft</span>}
+    </div>
+    {subtitle && <div class="card-sub">{subtitle}</div>}
+    <div class="card-tags">{disciplines.map(disciplineLabel).join(' / ')}</div>
+  </div>
+</a>

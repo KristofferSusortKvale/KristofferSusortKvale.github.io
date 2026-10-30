@@ -1,0 +1,75 @@
+---
+// A YouTube or Vimeo embed, or a video file. Usage in .mdx:
+//   <Video youtube="https://www.youtube.com/watch?v=..." caption="Gameplay trailer" />
+//   <Video src="/media/turntable.mp4" loop />
+import { publicUrl } from '../../lib/format';
+
+interface Props {
+  /** A YouTube link or video ID. */
+  youtube?: string;
+  /** A Vimeo link or video ID. */
+  vimeo?: string;
+  /** A video file in `public/`, written from the site root, e.g. `/media/turntable.mp4`. */
+  src?: string;
+  /** Play like a GIF: muted, looping and autoplaying, without controls. Only for `src` videos. */
+  loop?: boolean;
+  caption?: string;
+  /** Break out of the text column. On by default. */
+  wide?: boolean;
+}
+
+const { youtube, vimeo, src, loop = false, caption, wide = true } = Astro.props;
+
+const youtubeId = youtube && (youtube.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/)?.[1] ?? youtube);
+const vimeoId = vimeo && (vimeo.match(/(\d{6,})/)?.[1] ?? vimeo);
+const embed = youtubeId
+  ? `https://www.youtube-nocookie.com/embed/${youtubeId}`
+  : vimeoId
+    ? `https://player.vimeo.com/video/${vimeoId}?dnt=1`
+    : undefined;
+
+if (!embed && !src) throw new Error('<Video> needs a `youtube`, `vimeo` or `src` prop.');
+---
+
+<figure class:list={['video', { wide }]}>
+  {
+    embed ? (
+      <iframe
+        src={embed}
+        title={caption ?? 'Video'}
+        loading="lazy"
+        allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+        allowfullscreen
+      />
+    ) : (
+      <video
+        src={publicUrl(src!)}
+        controls={!loop}
+        autoplay={loop}
+        loop={loop}
+        muted={loop}
+        playsinline
+        preload="metadata"
+      />
+    )
+  }
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .video {
+    margin-block: 2rem;
+  }
+
+  iframe,
+  video {
+    width: 100%;
+    border: 0;
+    border-radius: var(--radius);
+    background: #000;
+  }
+
+  iframe {
+    aspect-ratio: 16 / 9;
+  }
+</style>

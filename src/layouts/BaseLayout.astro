@@ -1,0 +1,68 @@
+---
+import '../styles/global.css';
+import { site } from '../site.config';
+import { url } from '../lib/format';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Page-specific CSS (theme overrides, then `customCss`), applied after the site's own styles. */
+  css?: string[];
+}
+
+const { title, description = site.description, css = [] } = Astro.props;
+
+const nav = [
+  { href: url('/work/'), label: 'Work' },
+  { href: url('/productions/'), label: 'Productions' },
+  { href: url('/about/'), label: 'About' },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title ? `${title} · ${site.name}` : site.name}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    {css.filter(Boolean).map((styles) => <style is:inline set:html={styles} />)}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container">
+        <a class="site-name" href={url('/')}>{site.name}</a>
+        <nav class="site-nav" aria-label="Main">
+          {
+            nav.map((item) => (
+              <a href={item.href} aria-current={Astro.url.pathname.startsWith(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <span>© {new Date().getFullYear()} {site.name}</span>
+        {
+          site.links.length > 0 && (
+            <ul class="inline-list">
+              {site.links.map((link) => (
+                <li>
+                  <a href={link.url}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </footer>
+  </body>
+</html>

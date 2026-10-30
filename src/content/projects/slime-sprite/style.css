@@ -1,0 +1,6 @@
+/* Only loaded on this project's page, through `customCss` in index.mdx. */
+h1 {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}

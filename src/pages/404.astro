@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/format';
+---
+
+<BaseLayout title="Page not found">
+  <div class="container">
+    <header class="page-head">
+      <h1>Page not found</h1>
+      <p>That page doesn't exist, or it has moved.</p>
+    </header>
+    <a class="button" href={url('/work/')}>Browse all work</a>
+  </div>
+</BaseLayout>

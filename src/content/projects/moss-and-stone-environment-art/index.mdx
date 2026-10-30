@@ -1,0 +1,31 @@
+---
+# SAMPLE project: one role on a production, with images in the same folder.
+title: Environment Art
+description: A modular rock kit and ground materials for the valley biome.
+production: moss-and-stone      # the production's ID: its folder or file name
+role: Environment Artist
+disciplines: [3d, materials]     # filter tags; any new tag works without code changes
+tools: [Blender, Maya, Godot]
+date: 2026-09-12
+thumbnail: ./rock-large.png
+featured: true                   # shown on the home page
+draft: true                      # visible with `npm run dev`, hidden on the live site
+---
+
+A short intro to what you made and why. The rock kit had to cover the whole valley with as few unique meshes as possible.
+
+<Gallery cols={3} caption="Three of the twelve rock variants.">
+  ![Large mossy rock](./rock-large.png)
+  ![Tall mossy rock](./rock-tall.png)
+  ![Cluster of two mossy rocks](./rock-cluster.png)
+</Gallery>
+
+## Breakdown
+
+- **Modelling:** blocked out in Maya, sculpted and decimated in Blender.
+- **Materials:** one tiling rock material with a world-space moss blend, so every rock gets moss on top automatically.
+- **Budget:** 800–2,000 triangles per rock, with two LODs each.
+
+## What I learned
+
+Write a few honest lines about what worked and what you'd do differently. People reviewing portfolios read this part.

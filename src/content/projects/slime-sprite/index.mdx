@@ -1,0 +1,25 @@
+---
+# SAMPLE standalone project: no production, its own theme, and a page-only stylesheet.
+title: Slime Sprite
+description: A 16×16 idle and hop animation.
+role: Pixel Artist
+disciplines: [2d, animation]
+tools: [Aseprite]
+date: 2026-07-02
+thumbnail: ./thumb.png
+theme:
+  accent: '#c2357a'
+  dark:
+    accent: '#f28bbd'
+customCss: ./style.css           # extra CSS for this page only
+draft: true
+---
+
+Pixel art lives in `public/` and is linked with a path starting at `/`, so it's served untouched instead of being recompressed. `pixelated` keeps the edges sharp when it's scaled up.
+
+<Gallery pixelated cols={4} caption="Idle, squash, hop, land.">
+  ![Frame 1: idle](/media/samples/slime-1.png)
+  ![Frame 2: squash](/media/samples/slime-2.png)
+  ![Frame 3: hop](/media/samples/slime-3.png)
+  ![Frame 4: land](/media/samples/slime-4.png)
+</Gallery>

@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductionCard from '../../components/ProductionCard.astro';
+import { getProductions, getProjects } from '../../lib/content';
+
+const productions = await getProductions();
+const projects = await getProjects();
+const roleCount = (id: string) => projects.filter((project) => project.data.production?.id === id).length;
+---
+
+<BaseLayout title="Productions">
+  <div class="container">
+    <header class="page-head">
+      <h1>Productions</h1>
+      <p>Games and other productions I've worked on, with every role I had on each.</p>
+    </header>
+
+    {
+      productions.length === 0 ? (
+        <p class="empty">Nothing published yet.</p>
+      ) : (
+        <div class="grid">
+          {productions.map((production) => (
+            <ProductionCard production={production} roles={roleCount(production.id)} />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

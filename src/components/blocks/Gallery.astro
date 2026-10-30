@@ -1,0 +1,93 @@
+---
+// Grid of Markdown images with a click-to-enlarge viewer. Usage in .mdx:
+//   <Gallery cols={3} caption="Optional caption">
+//     ![Alt text](./image-1.png)
+//     ![Alt text](./image-2.png)
+//   </Gallery>
+interface Props {
+  /** Maximum number of columns. Fewer are used on narrow screens. */
+  cols?: number;
+  /** Crop every image to one shape, e.g. "1 / 1" or "16 / 9". By default images keep their own shape. */
+  ratio?: string;
+  /** Keep hard pixel edges when images are scaled up, for pixel art and sprites. */
+  pixelated?: boolean;
+  caption?: string;
+}
+
+const { cols = 3, ratio, pixelated = false, caption } = Astro.props;
+const style = [`--cols: ${cols}`, ratio && `--ratio: ${ratio}`].filter(Boolean).join('; ');
+---
+
+<figure class:list={['gallery', 'wide', { pixelated }]} style={style}>
+  <div class="gallery-grid"><slot /></div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .gallery {
+    margin-block: 2rem;
+  }
+
+  .gallery-grid {
+    --gap: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(max(140px, (100% - (var(--cols) - 1) * var(--gap)) / var(--cols)), 1fr)
+    );
+    align-items: start;
+    gap: var(--gap);
+  }
+
+  /* Markdown wraps the images in paragraphs; let the images themselves be the grid items. */
+  .gallery-grid :global(p) {
+    display: contents;
+  }
+
+  .gallery-grid :global(img) {
+    width: 100%;
+    height: auto;
+    margin: 0;
+    aspect-ratio: var(--ratio, auto);
+    object-fit: cover;
+    border-radius: var(--radius);
+    background: var(--surface);
+    cursor: zoom-in;
+  }
+
+  .pixelated :global(img) {
+    object-fit: contain;
+    image-rendering: pixelated;
+  }
+</style>
+
+<script>
+  let lightbox: HTMLDialogElement | undefined;
+
+  function open(img: HTMLImageElement) {
+    if (!lightbox) {
+      lightbox = document.createElement('dialog');
+      lightbox.className = 'lightbox';
+      lightbox.addEventListener('click', () => lightbox!.close());
+      document.body.append(lightbox);
+    }
+    const full = document.createElement('img');
+    full.src = img.currentSrc || img.src;
+    full.alt = img.alt;
+    full.classList.toggle('pixelated', img.closest('.pixelated') !== null);
+    lightbox.replaceChildren(full);
+    lightbox.showModal();
+  }
+
+  for (const img of document.querySelectorAll<HTMLImageElement>('.gallery img')) {
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    img.addEventListener('click', () => open(img));
+    img.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        open(img);
+      }
+    });
+  }
+</script>
