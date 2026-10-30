@@ -8,7 +8,7 @@ All content is Markdown, in `src/content/`.
 | Command           | What it does                                                        |
 | ----------------- | ------------------------------------------------------------------- |
 | `npm install`     | Install dependencies (once, or after pulling new ones)              |
-| `npm run dev`     | Local preview at http://localhost:4321 that updates as you save. **Shows drafts.** |
+| `npm run dev`     | Local preview at http://localhost:4321/KristofferSusortKvale/ that updates as you save. **Shows drafts.** |
 | `npm run build`   | Build the live site into `dist/`. Drafts are left out.              |
 | `npm run preview` | Serve the built `dist/` locally, to check exactly what will go live |
 
@@ -126,7 +126,7 @@ Your name, tagline, footer links and discipline labels are in `src/site.config.t
 ## Publishing to GitHub Pages
 
 1. Create a GitHub repository named `<your-username>.github.io`.
-2. In `astro.config.mjs`, set `site` to `https://<your-username>.github.io`. If the repository has a different name, also add `base: '/<repo-name>'`.
+2. In `astro.config.mjs`, set `site` to `https://<your-username>.github.io`, and `base` to `'/<repo-name>'`. For a repository named `<your-username>.github.io`, set `base` to `'/'` instead. Links and Markdown paths starting with `/` get the base added automatically.
 3. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 4. Push to `main`. The workflow in `.github/workflows/deploy.yml` builds and publishes the site in a minute or two.
 
