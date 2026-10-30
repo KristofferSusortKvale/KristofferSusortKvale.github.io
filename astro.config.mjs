@@ -5,7 +5,7 @@ import { satteri } from '@astrojs/markdown-satteri';
 
 // The path the site is served from. A repo named <your-username>.github.io is served from the root ('/');
 // any other repo is served from '/<repo-name>'.
-const base = '/KristofferSusortKvale';
+const base = '/';
 
 /**
  * Prefixes root-relative links and images written in Markdown (`/media/sprite.png`, `/work/foo/`)

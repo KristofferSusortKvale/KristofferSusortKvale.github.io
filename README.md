@@ -8,7 +8,7 @@ All content is Markdown, in `src/content/`.
 | Command           | What it does                                                        |
 | ----------------- | ------------------------------------------------------------------- |
 | `npm install`     | Install dependencies (once, or after pulling new ones)              |
-| `npm run dev`     | Local preview at http://localhost:4321/KristofferSusortKvale/ that updates as you save. **Shows drafts.** |
+| `npm run dev`     | Local preview at http://localhost:4321 that updates as you save. **Shows drafts.** |
 | `npm run build`   | Build the live site into `dist/`. Drafts are left out.              |
 | `npm run preview` | Serve the built `dist/` locally, to check exactly what will go live |
 
