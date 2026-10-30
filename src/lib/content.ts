@@ -40,40 +40,27 @@ export async function getProjects() {
 export const getProduction = async (project: Project) =>
   project.data.production ? await getEntry(project.data.production) : undefined;
 
-const themeVars: Record<keyof Colors, string> = {
-  accent: '--accent',
-  bg: '--bg',
-  surface: '--surface',
-  text: '--text',
-  muted: '--muted',
-  border: '--border',
-  font: '--font-body',
-};
-
-const toVars = (colors: Colors) =>
-  Object.entries(colors)
-    .map(([key, value]) => `${themeVars[key as keyof Colors]}: ${value};`)
-    .join(' ');
-
 /**
- * Turns `theme` fields into CSS that overrides the site's design tokens. Later themes win,
- * so pass the production's theme before the project's.
+ * Turns `theme` fields into CSS that overrides the site's design tokens (the --light-* and --dark-*
+ * values in global.css). Later themes win, so pass the production's theme before the project's.
  */
 export function themeCss(...themes: Theme[]) {
-  const light: Colors = {};
-  const dark: Colors = {};
-  for (const { dark: darkColors, ...colors } of themes.filter((t) => t !== undefined)) {
+  const vars = new Map<string, string>();
+  for (const { dark, ...colors } of themes.filter((t) => t !== undefined)) {
     for (const [key, value] of Object.entries(colors) as [keyof Colors, string][]) {
-      light[key] = value;
-      // A plain override replaces any dark-mode value set by an earlier theme.
-      delete dark[key];
+      if (key === 'font') {
+        vars.set('--font-body', value);
+      } else {
+        // A plain value applies in both light and dark mode, replacing any earlier dark value.
+        vars.set(`--light-${key}`, value);
+        vars.set(`--dark-${key}`, value);
+      }
     }
-    Object.assign(dark, darkColors);
+    for (const [key, value] of Object.entries(dark ?? {}) as [keyof Colors, string][]) {
+      vars.set(key === 'font' ? '--font-body' : `--dark-${key}`, value);
+    }
   }
-  let css = '';
-  if (Object.keys(light).length) css += `:root { ${toVars(light)} }`;
-  if (Object.keys(dark).length) css += ` @media (prefers-color-scheme: dark) { :root { ${toVars(dark)} } }`;
-  return css;
+  return vars.size ? `:root { ${[...vars].map(([name, value]) => `${name}: ${value};`).join(' ')} }` : '';
 }
 
 const cssFiles = import.meta.glob<string>('/src/content/**/*.css', { query: '?raw', import: 'default' });

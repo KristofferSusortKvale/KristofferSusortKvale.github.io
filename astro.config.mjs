@@ -36,6 +36,8 @@ export default defineConfig({
     processor: satteri({ hastPlugins: [basePaths] }),
     shikiConfig: {
       themes: { light: 'github-light', dark: 'github-dark' },
+      // Emit both color sets as CSS variables; global.css picks one to match the site's theme.
+      defaultColor: false,
     },
   },
 });
