@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Icon from '../components/Icon.astro';
 import { site } from '../site.config';
 import { url } from '../lib/format';
 
@@ -53,10 +54,13 @@ const nav = [
         <span>© {new Date().getFullYear()} {site.name}</span>
         {
           site.links.length > 0 && (
-            <ul class="inline-list">
+            <ul class="inline-list footer-links">
               {site.links.map((link) => (
                 <li>
-                  <a href={link.url}>{link.label}</a>
+                  <a href={link.url}>
+                    <Icon name={link.icon} size={16} />
+                    {link.label}
+                  </a>
                 </li>
               ))}
             </ul>

@@ -1,0 +1,93 @@
+---
+// The contact links from site.config.ts as cards with icons. Used on the About page.
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+---
+
+<ul class="contact">
+  {
+    site.links.map((link) => (
+      <li>
+        <a class:list={['contact-link', `contact-${link.icon}`]} href={link.url}>
+          <span class="contact-icon">
+            <Icon name={link.icon} size={22} />
+          </span>
+          <span>
+            <span class="contact-label">{link.label}</span>
+            <span class="contact-text">
+              {/* On narrow screens, an email address wraps before the @ rather than mid-word. */}
+              {link.text.split('@').map((part, i) => (i === 0 ? part : <><wbr />@{part}</>))}
+            </span>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contact li {
+    margin: 0;
+  }
+
+  .contact-link {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    text-decoration: none;
+    transition:
+      border-color 0.15s,
+      transform 0.15s;
+  }
+
+  .contact-link:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .contact-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+  }
+
+  .contact-youtube .contact-icon {
+    --youtube-red: #ff0000;
+    --youtube-play: #fff;
+    background: color-mix(in srgb, #ff0000 10%, transparent);
+  }
+
+  .contact-label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .contact-text {
+    display: block;
+    font-weight: 550;
+    line-height: 1.35;
+    overflow-wrap: break-word;
+  }
+</style>

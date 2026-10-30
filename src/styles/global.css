@@ -206,6 +206,19 @@
     list-style: none;
   }
 
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+  }
+
+  /* Brand-colored icons on hover; see Icon.astro. */
+  .footer-links a:hover {
+    --youtube-red: #ff0000;
+    --youtube-play: #fff;
+  }
+
   /* Page sections */
   .hero {
     padding-block: clamp(1rem, 4vw, 3rem) clamp(0.5rem, 2vw, 1rem);

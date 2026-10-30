@@ -1,0 +1,24 @@
+---
+// Small inline icons on a 24×24 grid. Add new ones to `icons`; unknown names fall back to `link`.
+// The YouTube mark follows Simple Icons (CC0). Its colors come from --youtube-red and --youtube-play,
+// so it's monochrome by default and full color where those variables are set.
+interface Props {
+  name: string;
+  size?: number;
+}
+
+const { name, size = 20 } = Astro.props;
+
+const icons: Record<string, string> = {
+  mail: `
+    <rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+    <path d="m3.5 7 8.5 6 8.5-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+  youtube: `
+    <path fill="var(--youtube-red, currentColor)" d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81z"/>
+    <path fill="var(--youtube-play, var(--bg))" d="M9.55 15.57V8.43L15.82 12z"/>`,
+  link: `
+    <path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`,
+};
+---
+
+<svg class="icon" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" set:html={icons[name] ?? icons.link} />
